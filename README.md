@@ -1,16 +1,55 @@
 # FastAPI Project
 
-This project is a simple FastAPI application that responds with a "Hello World !!" message when you visit the root endpoint.
+このプロジェクトは、FastAPIを使用して構築されたシンプルなWeb APIです。ルートエンドポイントにアクセスすると、"Hello World !!"というメッセージがJSON形式で返されます。
 
-## Prerequisites
+## インストール方法
 
-Before you begin, ensure you have met the following requirements:
-- Python 3.6+
-- pip
+プロジェクトを実行する前に、必要な依存関係をインストールする必要があります。以下の手順に従ってください。
 
-## Installation
+### 必要条件
 
-Clone the repository to your local machine:
+- Python 3.6以上
+
+### 依存関係のインストール
+
+このプロジェクトはFastAPIに依存しています。依存関係をインストールするには、以下のコマンドを実行してください。
 
 ```bash
-git clone <repository-url>
+pip install fastapi
+pip install uvicorn[standard]
+```
+
+## 使用方法
+
+依存関係をインストールした後、以下のコマンドを実行してアプリケーションを起動します。
+
+```bash
+uvicorn main:app --reload
+```
+
+このコマンドは、開発用サーバーを起動し、コードの変更があるたびに自動的にリロードします。
+
+## エンドポイント
+
+### `/`
+
+- メソッド: GET
+- 説明: ルートエンドポイントにアクセスすると、"Hello World !!"というメッセージがJSON形式で返されます。
+- レスポンス例:
+
+```json
+{
+  "message": "Hello World !!"
+}
+```
+
+## プロジェクトの構造
+
+```
+/main.py   - FastAPIアプリケーションのメインファイル。
+/README.md - プロジェクトの説明と指示が含まれています。
+```
+
+## 補足
+
+このプロジェクトは学習目的で作成されました。FastAPIについて学ぶためのシンプルな例です。
