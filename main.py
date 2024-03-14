@@ -8,8 +8,8 @@ app = FastAPI()
 @app.get("/")
 async def index():
     # 環境変数からJSONファイルのパスを取得する
-    json_file_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
-    spread_sheet_key = os.getenv("SPREADSHEET_KEY", "")
+    json_file_path = get_secret("GOOGLE_APPLICATION_CREDENTIALS")
+    spread_sheet_key = get_secret("SPREADSHEET_KEY")
     if not json_file_path or not spread_sheet_key:
         return {"error": "Missing environment variables"}
 
@@ -24,3 +24,11 @@ def connect_gspread(json_file_path, key):
     gc = gspread.authorize(credentials)
     worksheet = gc.open_by_key(key).sheet1
     return worksheet
+
+def get_secret(key):
+    if os.getenv('ENV') == 'production':
+        # 本番環境用のシークレット取得処理
+        return access_secret_version('hellowebapi-415301', key)
+    else:
+        # ローカル環境用の処理
+        return os.getenv(key,"")
