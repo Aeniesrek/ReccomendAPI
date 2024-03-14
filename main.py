@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from google.cloud import secretmanager
 
 app = FastAPI()
 
@@ -32,3 +33,12 @@ def get_secret(key):
     else:
         # ローカル環境用の処理
         return os.getenv(key,"")
+
+def access_secret_version(project_id, secret_id, version_id="latest"):
+    """
+    GCP Secret Managerからシークレットの値を取得します。
+    """
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
+    response = client.access_secret_version(request={"name": name})
+    return response.payload.data.decode("UTF-8")
