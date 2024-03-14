@@ -25,4 +25,9 @@ jobs:
 
     - name: Deploy to App Engine
       run: |
+        echo "${{ secrets.GCP_SA_KEY }}" > gcp-key.json
+        export GOOGLE_APPLICATION_CREDENTIALS=gcp-key.json
         gcloud app deploy app.yaml --project ${{ secrets.GCP_PROJECT_ID }} --quiet
+      env:
+        SPREADSHEET_KEY: ${{ secrets.SPREADSHEET_KEY }}
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
