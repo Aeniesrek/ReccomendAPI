@@ -32,22 +32,13 @@ def get_secret(key):
         return access_secret_version('hellowebapi-415301', key)
     else:
         # ローカル環境用の処理
-        return os.getenv(key,"")
+        return os.getenv(key, "")
 
 def access_secret_version(project_id, secret_id, version_id="latest"):
     """
     GCP Secret Managerからシークレットの値を取得します。
     """
-    # サービスアカウントキーの JSON ファイルのパスを取得
-    json_file_path = get_secret("GOOGLE_APPLICATION_CREDENTIALS")
-    
-    # サービスアカウントキーを使用して認証情報を作成
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(json_file_path)
-    
-    # クライアントを作成
-    client = secretmanager.SecretManagerServiceClient(credentials=credentials)
-
-    # Secret Manager からシークレットの値を取得
+    client = secretmanager.SecretManagerServiceClient()
     name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
     response = client.access_secret_version(request={"name": name})
     return response.payload.data.decode("UTF-8")
