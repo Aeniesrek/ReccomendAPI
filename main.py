@@ -7,19 +7,24 @@ import json
 from dotenv import load_dotenv
 
 app = FastAPI()
+load_dotenv()
 
 @app.get("/")
 async def index():
-    # 環境変数からJSONファイルのパスを取得する
+    # 環境変数から取得する
     json_credentials = get_secret("GOOGLE_APPLICATION_CREDENTIALS")
     spread_sheet_key = get_secret("SPREADSHEET_KEY")
-    if not json_credentials or not spread_sheet_key:
-        return {"error": "Missing environment variables"}
+    if not spread_sheet_key:
+        return {"error": "Missing SPREADSHEET_KEY"}
 
-    credentials_dict = json.loads(json_credentials)
+    # 環境に応じて認証情報を読み込む
+    if os.getenv('ENV') == 'production':
+        credentials_dict = json.loads(json_credentials)  # JSON文字列から直接ロード
+    else:
+        credentials_dict = load_credentials_from_file(json_credentials)  # ファイルからロード
+
     ws = connect_gspread(credentials_dict, spread_sheet_key)
     ds = ws.range('A1:G3')
-    # ここでの返却値を適切な形式に変換する必要があるかもしれません
     return {"data": [cell.value for cell in ds]}
 
 def connect_gspread(credentials_dict, key):
@@ -45,3 +50,8 @@ def access_secret_version(project_id, secret_id, version_id="latest"):
     name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
     response = client.access_secret_version(request={"name": name})
     return response.payload.data.decode("UTF-8")
+
+def load_credentials_from_file(file_path):
+    """ファイルから認証情報を読み込む"""
+    with open(file_path, "r") as file:
+        return json.load(file)
