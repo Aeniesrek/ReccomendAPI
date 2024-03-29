@@ -4,6 +4,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import secretmanager
 import json
+from dotenv import load_dotenv
 
 app = FastAPI()
 
