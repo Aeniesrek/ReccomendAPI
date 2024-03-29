@@ -5,6 +5,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import secretmanager
 import json
 from dotenv import load_dotenv
+import requests
 
 app = FastAPI()
 load_dotenv()
@@ -25,7 +26,7 @@ async def index():
 
     ws = connect_gspread(credentials_dict, spread_sheet_key)
     ds = ws.range('A1:G10')
-    return {"data": [cell.value for cell in ds]}
+    return {"data": ds,"metabase":getMetabase()}
 
 def connect_gspread(credentials_dict, key):
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -58,3 +59,34 @@ def load_credentials_from_file(file_path):
     """ファイルから認証情報を読み込む"""
     with open(file_path, "r") as file:
         return json.load(file)
+
+
+def getMetabase():
+    # Metabaseの設定
+    metabase_url = get_secret("METABASE_URL")
+    username = get_secret("METABASE_USER_NAME")
+    password = get_secret("METABASE_PASSWORD")
+
+    # 1. ログインしてセッションIDを取得
+    login_endpoint = f'{metabase_url}/api/session'
+    login_payload = {
+        'username': username,
+        'password': password
+    }
+    response = requests.post(login_endpoint, json=login_payload)
+    session_id = response.json()['id']
+    print(session_id);
+
+
+    # 2. クエリを実行
+    query_endpoint = f'{metabase_url}/api/card/20/query'
+    headers = {
+        'X-Metabase-Session': session_id
+    }
+
+    # ここで 'CARD_ID' は、実行したいクエリが保存されているカードのIDに置き換えてください。
+    response = requests.post(query_endpoint,  headers=headers)
+
+    # 3. 結果を取得して処理
+    return response.json()
+    
