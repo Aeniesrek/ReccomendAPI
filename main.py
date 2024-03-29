@@ -24,7 +24,7 @@ async def index():
         credentials_dict = load_credentials_from_file(json_credentials)  # ファイルからロード
 
     ws = connect_gspread(credentials_dict, spread_sheet_key)
-    ds = ws.range('A1:G3')
+    ds = ws.range('A1:G10')
     return {"data": [cell.value for cell in ds]}
 
 def connect_gspread(credentials_dict, key):
@@ -38,6 +38,7 @@ def get_secret(key):
     if os.getenv('ENV') == 'production':
         # 本番環境用のシークレット取得処理
         return access_secret_version('hellowebapi-415301', key)
+        
     else:
         # ローカル環境用の処理
         return os.getenv(key,"")
@@ -50,6 +51,8 @@ def access_secret_version(project_id, secret_id, version_id="latest"):
     name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
     response = client.access_secret_version(request={"name": name})
     return response.payload.data.decode("UTF-8")
+
+    
 
 def load_credentials_from_file(file_path):
     """ファイルから認証情報を読み込む"""
